@@ -13,8 +13,17 @@ const PORT = process.env.PORT || 5000;
 server.use(cors());
 
 server.get('/', (req,res)=>{
-  res.send('سلاااام على الزلااام ');
+  res.send('سلاااام على الزلااام');
 });
+
+server.get('*', (req, res) => {
+  let errObject = {
+    status: 500,
+    responseText: 'Sorry, something went wrong ',
+  };
+  res.status(500).send(errObject);});
+
+
 
 server.get('/location',(req,res)=>{
   //fetch the data that inside locaion.json file
