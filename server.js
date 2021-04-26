@@ -83,7 +83,7 @@ function Location(cityName,locData){
 function Weathers (weatherData)
 {
   this.forecast = weatherData.weather.description;
-  this.time = weatherData.valid_date;
+  this.time = new Date(weatherData.valid_date).toString().slice(0,15);
 }
 function Parks (parkData){
   this.name = parkData.fullName;
