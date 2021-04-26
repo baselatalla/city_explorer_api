@@ -75,6 +75,7 @@ typings/
 # Next.js build output
 .next
 
+.env
 # Nuxt.js build / generate output
 .nuxt
 dist
