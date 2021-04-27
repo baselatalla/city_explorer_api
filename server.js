@@ -26,7 +26,7 @@ function getLocationFromDatabase(req,res){
   let safeValuse = [cityName];
   client.query(SQL,safeValuse)
     .then(result=>{
-      if (result.rows.length !== 0){
+      if (result.rows.length){
         console.log(result.rows);
         res.send(result.rows[0]);
       }else{
