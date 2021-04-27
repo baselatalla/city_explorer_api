@@ -37,7 +37,7 @@ function locationHandelr(req,res){
 
 
 function weatherHandler(req,res){
-  let cityName = req.query.city;
+  let cityName = req.query.search_query;
   let key1 = process.env.WEATHER_KEY;
   let wethURL = `https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName}&key=${key1}`;
   superagent.get(wethURL)
@@ -50,7 +50,7 @@ function weatherHandler(req,res){
     });
 }
 function parksHandler(req,res){
-  let cityName = req.query.city;
+  let cityName = req.query.search_query;
   let key2 = process.env.PARKS_API_KEY;
   let wethURL = `https://developer.nps.gov/api/v1/parks?q=${cityName}&limit=5&api_key=${key2}`;
   superagent.get(wethURL)
@@ -88,7 +88,7 @@ function Weathers (weatherData)
 function Parks (parkData){
   this.name = parkData.fullName;
   this.address = `${(parkData.addresses[0].line1)},${parkData.addresses[0].city},${parkData.addresses[0].stateCode} ${parkData.addresses[0].postalCode}`;
-  this.fee = 0.00;
+  this.fee = '0.00';
   this.description = parkData.description;
   this.url = parkData.url;
 }
