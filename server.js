@@ -5,36 +5,49 @@ require('dotenv').config();
 const cors = require('cors');
 const server = express();
 const superagent = require('superagent');
+const pg = require('pg');
 const PORT = process.env.PORT || 5000;
 server.use(cors());
 
-
+const client = new pg.Client(process.env.DATABASE_URL);
 
 server.get('/', (req,res)=>{
-  res.send('سلاااام على الزلااام');
+  res.send(' سلاااام على الزلااام');
 });
-server.get('/location',locationHandelr);
+
+server.get('/location',getLocationFromDatabase);
 server.get('/weather', weatherHandler);
 server.get('/parks', parksHandler);
 server.get('*',generalHandler);
 
-
-
-function locationHandelr(req,res){
+function getLocationFromDatabase(req,res){
   let cityName = req.query.city;
-  let key = process.env.LOCATION_KEY;
-  let locURL = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${cityName}&format=json`;
-  superagent.get(locURL) //send a request locatioIQ API
-    .then(geoData=>{
-      let gData = geoData.body;
-      let locationData = new Location(cityName,gData);
-      res.send(locationData);
-    }).catch(error=>{
-      console.log(error);
-      res.send(error);
+  let SQL = `SELECT * FROM locations WHERE search_query=$1;`;
+  let safeValuse = [cityName];
+  client.query(SQL,safeValuse)
+    .then(result=>{
+      if (result.rows.length !== 0){
+        console.log(result.rows);
+        res.send(result.rows[0]);
+      }else{
+        let key = process.env.LOCATION_KEY;
+        let locURL = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${cityName}&format=json`;
+        superagent.get(locURL)
+          .then(geoData=>{
+            let gData = geoData.body;
+            let locationData = new Location(cityName,gData);
+            let SQL = `INSERT INTO locations (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4) RETURNING *;`;
+            let safeValues = [locationData.search_query,locationData.formatted_query,locationData.latitude,locationData.longitude];
+            client.query(SQL,safeValues);
+            res.send(locationData);
+          }).catch(error=>{
+            console.log(error);
+            res.send(error);
+          });
+      }
+
     });
 }
-
 
 function weatherHandler(req,res){
   let cityName = req.query.search_query;
@@ -97,6 +110,10 @@ function Parks (parkData){
 
 // }
 
-server.listen(PORT,()=>{
-  console.log(`listening on port ${PORT}`);
-});
+client.connect()
+  .then(() => {
+    server.listen(PORT, () =>
+      console.log(`listening on ${PORT}`)
+    );
+
+  });
