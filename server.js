@@ -12,7 +12,7 @@ server.use(cors());
 const client = new pg.Client(process.env.DATABASE_URL);
 
 server.get('/', (req,res)=>{
-  res.send(' سلاااام على الزلااام وبااااي للسقااايط');
+  res.send(' سلاااام على الزلااام');
 });
 
 server.get('/location',getLocationFromDatabase);
